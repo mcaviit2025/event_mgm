@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface EventTypeRepo extends JpaRepository<EventType,Long> {
 
-    Optional<EventType> findByName(String Name);
+    Optional<EventType> findByEventType(String Name);
 }

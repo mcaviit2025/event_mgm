@@ -10,4 +10,10 @@ public class GlobalExceptionHandler {
     {
         return ex.getLocalizedMessage();
     }
+
+    @ExceptionHandler(InvalidData.class)
+    String invalidData(InvalidData ex)
+    {
+        return ex.getLocalizedMessage();
+    }
 }
