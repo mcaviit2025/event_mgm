@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -46,5 +48,6 @@ public class Event extends  BaseEntity {
     @ManyToOne
     @JoinColumn(name="event_type_id")
     private EventType eventType;
+
 
 }
