@@ -2,12 +2,13 @@ package com.example.event_mgm.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="categories")
+@Table(name = "categories", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,14 +16,16 @@ import java.util.List;
 @Builder
 public class Category extends BaseEntity {
 
-    @Column(nullable = false,length = 30)
-    private  String name;
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
 
-    @Column(length = 200)
+    @Column(name = "description", length = 255)
     private String description;
 
-    @OneToMany(mappedBy = "category",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events = new ArrayList<>();
 }

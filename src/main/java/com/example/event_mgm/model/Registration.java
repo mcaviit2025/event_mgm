@@ -1,47 +1,110 @@
 package com.example.event_mgm.model;
 
 import com.example.event_mgm.enums.PaymentStatus;
+import com.example.event_mgm.enums.RegistrationStatus;
+import com.example.event_mgm.enums.RegistrationType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Past;
 import lombok.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Table(name = "registrations", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"event_id", "email"})
+})
 @Getter
 @Setter
-@Table(name = "registrations")
-@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
-public class Registration  extends  BaseEntity{
+@Builder
+public class Registration extends BaseEntity {
 
-    @Column(nullable = false,length = 50)
+    //
+
+    @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
-    @Column(nullable = false,length = 50)
+    @Column(name = "middle_name", length = 50)
     private String middleName;
 
-    @Column(nullable = false,length = 50)
+    @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false,length = 50)
+    @Column(name = "email", nullable = false, length = 100)
+    @Email
     private String email;
 
-    @Column(nullable = false,length = 50)
+    @Column(name = "phone_number", nullable = false, length = 20)
+    private String phoneNumber;
+
+    @Column(name = "date_of_birth", nullable = false)
+    @Past
+    private LocalDate dateOfBirth;
+
+    @Column(name = "college_name", nullable = false, length = 100)
     private String collegeName;
 
-    @Column(nullable = false,length = 50)
+    @Column(name = "course", nullable = false, length = 50)
     private String course;
 
-    @Column(nullable = false,length = 50)
+    // ===== PAYMENT DETAILS =====
+
+    @Column(name = "utr_no", nullable = false, length = 50)
     private String utrNo;
 
-    @Enumerated(EnumType.STRING)
+
+    @Column(name = "number_of_members", nullable = false)
+    @Builder.Default
+    private Integer numberOfMembers = 1;
+
+    // ===== STATUS =====
+
+
     @Column(name = "payment_status", nullable = false)
     @Builder.Default
-    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    private String paymentStatus = PaymentStatus.PENDING.name();
+
+
+    @Column(name = "registration_status", nullable = false)
+    @Builder.Default
+    private String registrationStatus = RegistrationStatus.PENDING.name();
+
+
+    @Column(name = "registration_type", nullable = false)
+    private String registrationType;
+
+    @Column(name = "unique_code", length = 50)
+    private String uniqueCode;
+
+    // ===== TIMESTAMPS =====
+
+    @Column(name = "registered_at", nullable = false, updatable = false)
+    private LocalDateTime registeredAt;
+
+
+
+    // ===== RELATIONSHIPS =====
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
 
+
+    @OneToMany(mappedBy = "registration", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TeamMember> teamMembers = new ArrayList<>();
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
+    @PrePersist
+    protected void onCreate() {
+        registeredAt = LocalDateTime.now();
+    }
 }

@@ -1,22 +1,27 @@
 package com.example.event_mgm.service.event;
-import com.example.event_mgm.dto.CreateEventRequestDto;
-import com.example.event_mgm.dto.GetEventResponseDto;
+
+import com.example.event_mgm.dto.request.CreateEventRequestDto;
+import com.example.event_mgm.dto.request.UpdateEventRequestDto;
+import com.example.event_mgm.dto.response.EventResponseDto;
 
 import java.util.List;
 
 public interface EventService {
 
-    GetEventResponseDto createEvent(CreateEventRequestDto request);
+    // ===== CREATE =====
+    EventResponseDto createEvent(CreateEventRequestDto request, Long adminId);
 
-    GetEventResponseDto getEventById(Long eventId);
+    // ===== READ =====
+    EventResponseDto getEventById(Long id);
+    List<EventResponseDto> getAllEvents();
 
-    List<GetEventResponseDto> getAllEvents();
+    // ===== UPDATE =====
+    EventResponseDto updateEvent(Long id, UpdateEventRequestDto request, Long adminId);
 
-    GetEventResponseDto updateEvent(Long eventId, CreateEventRequestDto request);
+    // ===== DELETE =====
+    void deleteEvent(Long id);
 
-    void deleteEvent(Long eventId);
-
-    void activateEvent(Long eventId);
-
-    void deactivateEvent(Long eventId);
+    // ===== ACTIVATE/DEACTIVATE =====
+    void activateEvent(Long id);
+    void deactivateEvent(Long id);
 }

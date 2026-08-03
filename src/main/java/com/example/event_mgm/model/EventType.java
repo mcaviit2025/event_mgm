@@ -1,23 +1,31 @@
 package com.example.event_mgm.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "events_type")
+@Table(name = "event_types", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
 @Getter
 @Setter
-public class EventType extends  BaseEntity{
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class EventType extends BaseEntity {
 
-    @Column(name = "event_type",nullable = false,length = 20)
-    private  String  eventType;
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
 
-    @OneToMany(mappedBy = "eventType",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @Column(name = "description", length = 255)
+    private String description;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
+    @OneToMany(mappedBy = "eventType", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events = new ArrayList<>();
 }
