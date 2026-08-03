@@ -19,6 +19,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByEventNameAndIsActiveTrue(String eventName);
 
 
-
-
+    List<Event> findByIsActiveTrue();
 }
