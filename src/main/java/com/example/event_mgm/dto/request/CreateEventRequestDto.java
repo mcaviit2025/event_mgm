@@ -24,12 +24,13 @@ public class CreateEventRequestDto {
 
     @NotNull(message = "Event date and time is required")
     @FutureOrPresent(message = "Event date cannot be in the past")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime eventDateTime;
+
 
     @NotNull(message = "Registration deadline is required")
     @FutureOrPresent(message = "Registration deadline cannot be in the past")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime registrationDeadline;
 
     @NotBlank(message = "Description is required")
@@ -57,7 +58,7 @@ public class CreateEventRequestDto {
 
     // ===== CUSTOM VALIDATIONS =====
 
-    // 1. Registration deadline must be before event date
+
     @AssertTrue(message = "Registration deadline must be before event date and time")
     public boolean isRegistrationDeadlineBeforeEvent() {
         if (eventDateTime == null || registrationDeadline == null) {
@@ -94,8 +95,7 @@ public class CreateEventRequestDto {
         return true;
     }
 
-    // 5. ✅ BOTH → maxParticipantsPerGroup can be 1 or more
-    // (No validation needed, but keeping for clarity)
+
 
     // 6. Max participants per group cannot exceed max participants
     @AssertTrue(message = "Max participants per group cannot exceed max participants")
