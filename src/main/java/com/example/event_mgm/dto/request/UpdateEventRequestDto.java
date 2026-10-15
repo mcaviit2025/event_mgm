@@ -23,11 +23,11 @@ public class UpdateEventRequestDto {
     private String venue;
 
     @FutureOrPresent(message = "Event date cannot be in the past")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime eventDateTime;
 
     @FutureOrPresent(message = "Registration deadline cannot be in the past")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime registrationDeadline;
 
     @Size(min = 10, max = 1000, message = "Description must be between 10 and 1000 characters")
