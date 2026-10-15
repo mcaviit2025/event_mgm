@@ -5,6 +5,7 @@ import com.example.event_mgm.enums.RegistrationMode;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -31,6 +32,10 @@ public class UpdateEventRequestDto {
 
     @Size(min = 10, max = 1000, message = "Description must be between 10 and 1000 characters")
     private String description;
+
+    @DecimalMin(value = "0.00", message = "Event fee cannot be negative")
+    @Digits(integer = 8, fraction = 2, message = "Event fee must have no more than 2 decimal places")
+    private BigDecimal eventFee;
 
     @Min(value = 1, message = "Maximum participants must be at least 1")
     @Max(value = 10000, message = "Maximum participants cannot exceed 10000")

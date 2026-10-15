@@ -3,8 +3,9 @@ package com.example.event_mgm.model;
 import com.example.event_mgm.enums.EventStatus;
 import com.example.event_mgm.enums.RegistrationMode;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,12 @@ public class Event extends BaseEntity {
 
     @Column(name = "description", nullable = false, length = 1000)
     private String description;
+
+    @Column(name = "event_fee", nullable = false, precision = 10, scale = 2,
+            columnDefinition = "DECIMAL(10,2) DEFAULT 0")
+    @DecimalMin("0.00")
+    @Builder.Default
+    private BigDecimal eventFee = BigDecimal.ZERO;
 
     @Column(name = "max_participants", nullable = false)
     @Min(1)

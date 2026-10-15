@@ -71,6 +71,7 @@ public class EventServiceImpl implements EventService {
                 .eventDateTime(request.getEventDateTime())
                 .registrationDeadline(request.getRegistrationDeadline())
                 .description(request.getDescription().trim())
+                .eventFee(request.getEventFee())
                 .maxParticipants(request.getMaxParticipants())
                 .maxParticipantsPerGroup(request.getMaxParticipantsPerGroup())
                 .currentParticipants(0)
@@ -157,6 +158,10 @@ public class EventServiceImpl implements EventService {
 
         if (request.getDescription() != null) {
             event.setDescription(request.getDescription().trim());
+        }
+
+        if (request.getEventFee() != null) {
+            event.setEventFee(request.getEventFee());
         }
 
         if (request.getMaxParticipants() != null) {
@@ -331,6 +336,7 @@ public class EventServiceImpl implements EventService {
                 .eventDateTime(event.getEventDateTime())
                 .registrationDeadline(event.getRegistrationDeadline())
                 .description(event.getDescription())
+                .eventFee(event.getEventFee())
                 .maxParticipants(event.getMaxParticipants())
                 .maxParticipantsPerGroup(event.getMaxParticipantsPerGroup())
                 .currentParticipants(event.getCurrentParticipants())

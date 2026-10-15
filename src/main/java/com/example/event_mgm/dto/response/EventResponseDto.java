@@ -4,6 +4,7 @@ import com.example.event_mgm.enums.EventStatus;
 import com.example.event_mgm.enums.RegistrationMode;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -24,6 +25,7 @@ public class EventResponseDto {
     private LocalDateTime registrationDeadline;
 
     private String description;
+    private BigDecimal eventFee;
     private Integer maxParticipants;
     private Integer maxParticipantsPerGroup;
     private Integer currentParticipants;
