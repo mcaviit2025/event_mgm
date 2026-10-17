@@ -293,3 +293,92 @@ h1, h2, p { margin: 0; }
   .required-note { display: none; }
   .form-grid label { font-size: 10px; }
 }
+
+/* Shared page rhythm and larger, more legible admin typography. */
+:root {
+  --ink: #20242b;
+  --muted: #747c89;
+  --line: #e8ebf0;
+  --purple: #6546cf;
+  --purple-dark: #5334b9;
+  background: #f6f7f9;
+}
+
+body { color: var(--ink); font-size: 14px; }
+.sidebar { box-shadow: 3px 0 20px #1f293708; }
+.main-content { width: calc(100% - 248px); }
+.content-container { width: min(100%, 1440px); margin: 0 auto; }
+.topbar { min-height: 72px; }
+.breadcrumb { font-size: 13px; }
+.page-heading { margin-top: 38px; }
+.page-heading h1 { font-size: 32px; letter-spacing: -1.15px; }
+.page-heading p { font-size: 13px; }
+.eyebrow, .workspace-label { font-size: 10px; letter-spacing: 1.2px; }
+.nav-item { font-size: 13px; }
+.help-card strong, .profile-copy strong { font-size: 12px; }
+.help-card div span, .profile-copy small { font-size: 10px; }
+.button { min-height: 42px; font-size: 13px; }
+.button-small { min-height: 38px; font-size: 12px; }
+.stats-grid { gap: 16px; margin-bottom: 24px; }
+.stat-card { min-height: 126px; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px #27334d05; }
+.stat-content > span { font-size: 12px; }
+.stat-content strong { font-size: 27px; }
+.stat-content small { font-size: 10px; }
+.events-panel { border-radius: 12px; box-shadow: 0 3px 14px #27334d06; }
+.panel-heading { padding: 23px 24px 20px; }
+.panel-heading h2 { font-size: 16px; }
+.panel-heading p { font-size: 12px; }
+.search-field { height: 38px; }
+.search-field input { font-size: 12px; }
+.events-table thead { height: 44px; }
+.events-table th { font-size: 10px; letter-spacing: .55px; }
+.events-table td { height: 72px; font-size: 12px; }
+.event-cell strong { max-width: 230px; font-size: 12px; }
+.event-cell small, .date-cell, .category-chip, .fee-cell, .registration-cell, .status-badge, .text-action { font-size: 11px; }
+.category-chip, .status-badge { padding: 6px 9px; }
+.panel-footer { min-height: 47px; font-size: 10px; }
+.page-footer { font-size: 10px; }
+.alert { padding: 12px 14px; font-size: 12px; }
+.form-grid label, .lookup-form label, .login-form label { font-size: 12px; }
+.form-grid input, .form-grid textarea, .form-grid select, .lookup-form input, .lookup-form textarea, .login-form input { min-height: 42px; font-size: 13px; }
+.form-grid textarea, .lookup-form textarea { min-height: 88px; }
+.field-hint, .field-error, .form-note, .required-note { font-size: 10px; }
+.modal-header h2 { font-size: 22px; }
+.modal-header p { font-size: 12px; }
+.form-section-title { font-size: 13px; }
+.validation-summary { font-size: 11px; }
+.login-form-wrap h2 { font-size: 30px; }
+.login-subtitle, .login-security { font-size: 12px; }
+.login-form input { min-height: 46px; }
+.login-kicker { font-size: 10px; }
+
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid #8d76e655;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1180px) {
+  .main-content { width: calc(100% - 218px); }
+}
+@media (max-width: 760px) {
+  .main-content { width: 100%; }
+  .topbar { min-height: 54px; }
+  .page-heading { margin-top: 27px; }
+  .page-heading h1 { font-size: 27px; }
+  .stats-grid { gap: 10px; }
+  .stat-card { min-height: 105px; padding: 14px 12px; }
+  .stat-content > span { font-size: 10px; }
+  .stat-content strong { font-size: 22px; }
+  .stat-content small { font-size: 9px; }
+  .panel-heading { padding: 18px 16px 15px; }
+  .events-table td { font-size: 11px; }
+  .event-cell strong { font-size: 11px; }
+  .form-grid label { font-size: 11px; }
+  .form-grid input, .form-grid textarea, .form-grid select { font-size: 12px; }
+}
+@media (max-width: 470px) {
+  .page-heading h1 { font-size: 24px; }
+  .page-heading p { font-size: 11px; }
+  .stat-content > span { font-size: 9px; }
+  .stat-content small { font-size: 8px; }
+}
