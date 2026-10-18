@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert } from "../../shared/components/Alert.jsx";
 import { formatError } from "../../utils/eventFormatters.js";
 
-export function LookupModal({ kind, onClose, onSave }) {
+export function LookupModal({ kind, onClose, onSave, onCreated }) {
   const label = kind === "category" ? "category" : "event type";
   const [form, setForm] = useState({ name: "", description: "" });
   const [error, setError] = useState("");
@@ -13,7 +13,9 @@ export function LookupModal({ kind, onClose, onSave }) {
     setSubmitting(true);
     setError("");
     try {
-      await onSave(form);
+      const createdOption = await onSave(form);
+      onCreated?.(createdOption);
+      onClose();
     } catch (saveError) {
       setError(formatError(saveError));
     } finally {

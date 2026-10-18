@@ -22,20 +22,33 @@ export function EventsDashboard({ token, user, onSignOut }) {
   const loadDashboard = useCallback(async () => {
     setLoading(true);
     setPageError("");
-    try {
-      const [nextEvents, nextCategories, nextTypes] = await Promise.all([
-        apiRequest("/v1/admin/events", { token }),
-        apiRequest("/v1/admin/categories", { token }),
-        apiRequest("/v1/admin/event-types", { token }),
-      ]);
-      setEvents(nextEvents || []);
-      setCategories((nextCategories || []).filter((item) => item.isActive));
-      setEventTypes((nextTypes || []).filter((item) => item.isActive));
-    } catch (error) {
-      setPageError(formatError(error));
-    } finally {
-      setLoading(false);
+    const [eventsResult, categoriesResult, typesResult] = await Promise.allSettled([
+      apiRequest("/v1/admin/events", { token }),
+      apiRequest("/v1/admin/categories", { token }),
+      apiRequest("/v1/admin/event-types", { token }),
+    ]);
+
+    const errors = [];
+    if (eventsResult.status === "fulfilled") {
+      setEvents(Array.isArray(eventsResult.value) ? eventsResult.value : []);
+    } else {
+      errors.push(`Events: ${formatError(eventsResult.reason)}`);
     }
+
+    if (categoriesResult.status === "fulfilled") {
+      setCategories(normalizeOptions(categoriesResult.value));
+    } else {
+      errors.push(`Categories: ${formatError(categoriesResult.reason)}`);
+    }
+
+    if (typesResult.status === "fulfilled") {
+      setEventTypes(normalizeOptions(typesResult.value));
+    } else {
+      errors.push(`Event types: ${formatError(typesResult.reason)}`);
+    }
+
+    setPageError(errors.join(" "));
+    setLoading(false);
   }, [token]);
 
   useEffect(() => {
@@ -79,10 +92,13 @@ export function EventsDashboard({ token, user, onSignOut }) {
     const endpoint = lookupModal.kind === "category"
       ? "/v1/admin/categories"
       : "/v1/admin/event-types";
-    await apiRequest(endpoint, { token, method: "POST", body: form });
-    setLookupModal(null);
+    const createdOption = await apiRequest(endpoint, { token, method: "POST", body: form });
+    if (!createdOption?.id) {
+      throw new Error("The API did not return the ID of the new option.");
+    }
     setNotice(lookupModal.kind === "category" ? "Category added." : "Event type added.");
     await loadDashboard();
+    return createdOption;
   }
 
   async function deleteEvent(event) {
@@ -159,7 +175,7 @@ export function EventsDashboard({ token, user, onSignOut }) {
           eventTypes={eventTypes}
           onClose={() => setEventModal(null)}
           onSave={saveEvent}
-          onCreateLookup={(kind) => setLookupModal({ kind })}
+          onCreateLookup={(kind, onCreated) => setLookupModal({ kind, onCreated })}
         />
       )}
       {lookupModal && (
@@ -167,8 +183,14 @@ export function EventsDashboard({ token, user, onSignOut }) {
           kind={lookupModal.kind}
           onClose={() => setLookupModal(null)}
           onSave={saveLookup}
+          onCreated={lookupModal.onCreated}
         />
       )}
     </>
   );
+}
+
+function normalizeOptions(options) {
+  if (!Array.isArray(options)) return [];
+  return options.filter((item) => (item.isActive ?? item.active ?? true) !== false);
 }

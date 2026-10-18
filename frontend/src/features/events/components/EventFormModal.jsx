@@ -185,7 +185,7 @@ export function EventFormModal({
                   <option value="">Select event type</option>
                   {eventTypes.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}
                 </select>
-                <button type="button" title="Add event type" aria-label="Add event type" onClick={() => onCreateLookup("event-type")}>＋</button>
+                <button type="button" title="Add event type" aria-label="Add event type" onClick={() => onCreateLookup("event-type", (created) => update("eventTypeId", String(created.id)))}>＋</button>
               </div>
               {fieldError("eventTypeId")}
               {eventTypes.length === 0 && <small className="field-hint">Add an event type to continue.</small>}
@@ -197,7 +197,7 @@ export function EventFormModal({
                   <option value="">Select category</option>
                   {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
                 </select>
-                <button type="button" title="Add category" aria-label="Add category" onClick={() => onCreateLookup("category")}>＋</button>
+                <button type="button" title="Add category" aria-label="Add category" onClick={() => onCreateLookup("category", (created) => update("categoryId", String(created.id)))}>＋</button>
               </div>
               {fieldError("categoryId")}
               {categories.length === 0 && <small className="field-hint">Add a category to continue.</small>}

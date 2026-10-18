@@ -198,9 +198,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    @ExceptionHandler
-    public String dulicate(DuplicateResourceException ex)
-    {
-        return ex.getMessage();
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponseDto> handleDuplicateResource(
+            DuplicateResourceException ex, WebRequest request) {
+
+        log.warn("Duplicate resource: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .errorCode("RES_002")
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 }
