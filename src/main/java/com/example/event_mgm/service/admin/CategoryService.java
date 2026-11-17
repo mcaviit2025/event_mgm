@@ -11,10 +11,7 @@ public interface CategoryService {
 
     CategoryResponseDto createCategory(CreateCategoryRequestDto request);
     CategoryResponseDto getCategoryById(Long id);
-
-
     List<CategoryResponseDto> getAllCategories();
-
     CategoryResponseDto updateCategory(Long id, UpdateCategoryRequestDto request);
     void deleteCategory(Long id);
     void activateCategory(Long id);

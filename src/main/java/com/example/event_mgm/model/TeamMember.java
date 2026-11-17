@@ -1,14 +1,22 @@
+
 package com.example.event_mgm.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "team_members", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"registration_id", "email"})
-})
+@Table(
+        name = "team_members",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"registration_id", "email"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,8 +43,11 @@ public class TeamMember extends BaseEntity {
     @Column(name = "added_at", nullable = false, updatable = false)
     private LocalDateTime addedAt;
 
+    // Parent registration
+    // Database deletes team members when registration is deleted
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "registration_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Registration registration;
 
     @Column(name = "is_active", nullable = false)

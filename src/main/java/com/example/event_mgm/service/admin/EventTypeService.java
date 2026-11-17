@@ -11,10 +11,11 @@ import java.util.List;
 public interface EventTypeService {
     EventTypeResponseDto createEventType(CreateEventTypeRequestDto request);
     EventTypeResponseDto getEventTypeById(Long id);
-//    Page<EventTypeResponseDto> getAllEventTypes(Pageable pageable, String search);
-     List<EventTypeResponseDto> getAllEventTypes();
+//  Page<EventTypeResponseDto> getAllEventTypes(Pageable pageable, String search);
+    List<EventTypeResponseDto> getAllEventTypes();
     EventTypeResponseDto updateEventType(Long id, UpdateEventTypeRequestDto request);
     void deleteEventType(Long id);
     void activateEventType(Long id);
     void deactivateEventType(Long id);
 }
+

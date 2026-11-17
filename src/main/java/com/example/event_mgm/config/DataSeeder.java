@@ -28,7 +28,7 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         log.info("Starting data seeding...");
 
-        // Seed roles if they don't exist
+
         if (roleRepository.count() == 0) {
             log.info("Seeding roles...");
 
@@ -53,7 +53,7 @@ public class DataSeeder implements CommandLineRunner {
             User admin = User.builder()
                     .username("admin")
                     .email("admin@eventmgm.com")
-                    .password(passwordEncoder.encode("Admin@123")) // Change in production
+                    .password(passwordEncoder.encode("Admin@123"))
                     .fullName("System Administrator")
                     .phoneNumber("+1234567890")
                     .isEnabled(true)

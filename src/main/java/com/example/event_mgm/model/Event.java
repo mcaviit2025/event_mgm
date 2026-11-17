@@ -1,3 +1,4 @@
+
 package com.example.event_mgm.model;
 
 import com.example.event_mgm.enums.EventStatus;
@@ -6,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,8 +38,13 @@ public class Event extends BaseEntity {
     @Column(name = "description", nullable = false, length = 1000)
     private String description;
 
-    @Column(name = "event_fee", nullable = false, precision = 10, scale = 2,
-            columnDefinition = "DECIMAL(10,2) DEFAULT 0")
+    @Column(
+            name = "event_fee",
+            nullable = false,
+            precision = 10,
+            scale = 2,
+            columnDefinition = "DECIMAL(10,2) DEFAULT 0"
+    )
     @DecimalMin("0.00")
     @Builder.Default
     private BigDecimal eventFee = BigDecimal.ZERO;
@@ -62,19 +70,28 @@ public class Event extends BaseEntity {
     @Column(name = "registration_mode", nullable = false)
     private RegistrationMode registrationMode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_type_id", nullable = false)
-    private EventType eventType;
-
+    // Category deletion is restricted while events reference it
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    // EventType deletion is restricted while events reference it
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_type_id", nullable = false)
+    private EventType eventType;
+
+    // Preserve the user who created the event
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Event deletion removes all associated registrations
+    @OneToMany(
+            mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
     private List<Registration> registrations = new ArrayList<>();
 
     @Column(name = "is_active", nullable = false)

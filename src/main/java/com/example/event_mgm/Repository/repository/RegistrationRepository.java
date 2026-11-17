@@ -33,4 +33,25 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
 
     @EntityGraph(attributePaths = "event")
     List<Registration> findByEventIdInAndIsActiveTrueOrderByEventIdAscRegisteredAtAsc(List<Long> eventIds);
+
+    @Query("""
+        SELECT DISTINCT r
+        FROM Registration r
+        JOIN FETCH r.event e
+        LEFT JOIN FETCH r.teamMembers tm
+        WHERE e.id = :eventId
+        ORDER BY r.id
+    """)
+    List<Registration> findAllForEventExport(
+            @Param("eventId") Long eventId
+    );
+
+    @Query("""
+        SELECT DISTINCT r
+        FROM Registration r
+        JOIN FETCH r.event e
+        LEFT JOIN FETCH r.teamMembers tm
+        ORDER BY e.id, r.id
+    """)
+    List<Registration> findAllForOverallExport();
 }

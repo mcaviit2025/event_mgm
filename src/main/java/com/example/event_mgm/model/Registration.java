@@ -1,28 +1,35 @@
+
 package com.example.event_mgm.model;
 
 import com.example.event_mgm.enums.PaymentStatus;
 import com.example.event_mgm.enums.RegistrationStatus;
 import com.example.event_mgm.enums.RegistrationType;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "registrations", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"event_id", "email"})
-})
+@Table(
+        name = "registrations",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"event_id", "email"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Registration extends BaseEntity {
-
-    //
 
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
@@ -46,8 +53,7 @@ public class Registration extends BaseEntity {
     @Column(name = "course", nullable = false, length = 50)
     private String course;
 
-    // ===== PAYMENT DETAILS =====
-
+    // Payment details
     @Column(name = "payment_proof_path", length = 500)
     private String paymentProofPath;
 
@@ -58,18 +64,14 @@ public class Registration extends BaseEntity {
     @Builder.Default
     private Integer numberOfMembers = 1;
 
-    // ===== STATUS =====
-
-
+    // Status details
     @Column(name = "payment_status", nullable = false)
     @Builder.Default
     private String paymentStatus = PaymentStatus.PENDING.name();
 
-
     @Column(name = "registration_status", nullable = false)
     @Builder.Default
     private String registrationStatus = RegistrationStatus.PENDING.name();
-
 
     @Column(name = "registration_type", nullable = false)
     private String registrationType;
@@ -77,22 +79,23 @@ public class Registration extends BaseEntity {
     @Column(name = "unique_code", length = 50)
     private String uniqueCode;
 
-    // ===== TIMESTAMPS =====
-
+    // Registration timestamp
     @Column(name = "registered_at", nullable = false, updatable = false)
     private LocalDateTime registeredAt;
 
-
-
-    // ===== RELATIONSHIPS =====
-
+    // Parent event
+    // Database deletes registration when its event is deleted
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Event event;
 
-
-
-    @OneToMany(mappedBy = "registration", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Registration deletion removes all associated team members
+    @OneToMany(
+            mappedBy = "registration",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @Builder.Default
     private List<TeamMember> teamMembers = new ArrayList<>();
 

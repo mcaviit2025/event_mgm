@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
 
         Category savedCategory = categoryRepository.save(category);
-        log.info("Category created successfully with ID: {}", savedCategory.getId());
+
 
         return mapToResponseDto(savedCategory);
     }
