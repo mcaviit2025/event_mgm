@@ -36,6 +36,8 @@ build/
 # Ignore local Spring Boot configuration
 src/main/resources/application.properties
 
+uploads/
+
 # Frontend dependencies and build output
 frontend/node_modules/
 frontend/dist/
