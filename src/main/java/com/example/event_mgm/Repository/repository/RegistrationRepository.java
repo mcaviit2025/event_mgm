@@ -6,6 +6,7 @@ import com.example.event_mgm.enums.RegistrationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +23,14 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
 
     boolean existsByEventIdAndEmail(Long eventId, String email);
 
+    @EntityGraph(attributePaths = "event")
+    List<Registration> findByIsActiveTrueOrderByRegisteredAtDesc();
 
+    @EntityGraph(attributePaths = "event")
+    List<Registration> findByEventIdAndIsActiveTrueAndPaymentStatusOrderByRegisteredAtAsc(
+            Long eventId,
+            String paymentStatus);
 
-
+    @EntityGraph(attributePaths = "event")
+    List<Registration> findByEventIdInAndIsActiveTrueOrderByEventIdAscRegisteredAtAsc(List<Long> eventIds);
 }

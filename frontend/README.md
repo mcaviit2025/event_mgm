@@ -10,7 +10,7 @@ React + Vite admin interface for the Spring Boot event management API. The app s
 
 Vite proxies `/api` requests to `http://localhost:8080`. To use a different API base URL, set `VITE_API_BASE_URL` in a local `.env` file (for example, `VITE_API_BASE_URL=https://example.test/api`).
 
-The Events screen supports event listing, search, create, edit, and delete. Add categories and event types from the sidebar or directly in the event form. Event fees accept non-negative amounts with at most two fractional digits; `0.00` means free. The backend stores and returns the fee but does not process payments or define a currency.
+The Events screen supports event listing, search, create, edit, and delete. Event creation uses separate date and time inputs; changing either automatically sets the registration deadline to the same time on the previous day, and the deadline remains editable. The Categories and Event types screens list all options and support create, edit, activate/deactivate, and delete through the admin APIs. Options in use by events may be blocked from deletion by the backend and can instead be deactivated. Event fees accept non-negative amounts with at most two fractional digits; `0.00` means free. The backend stores and returns the fee but does not process payments or define a currency.
 
 ## Backend event fee
 
@@ -24,7 +24,7 @@ src/
   features/
     auth/              Administrator login
     events/            Dashboard, event table, and create/edit form
-    lookups/           Category and event-type creation
+    lookups/           Category and event-type management
   services/            HTTP API client
   shared/
     components/        Reusable UI components

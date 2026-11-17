@@ -20,4 +20,20 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
 
     List<Event> findByIsActiveTrue();
+
+    List<Event> findByIdInAndIsActiveTrueOrderByEventNameAsc(List<Long> ids);
+
+    @Modifying
+    @Query("""
+            UPDATE Event e
+            SET e.currentParticipants = e.currentParticipants + :participantCount
+            WHERE e.id = :eventId
+              AND e.isActive = true
+              AND e.status = :status
+              AND e.currentParticipants + :participantCount <= e.maxParticipants
+            """)
+    int reserveParticipants(
+            @Param("eventId") Long eventId,
+            @Param("participantCount") int participantCount,
+            @Param("status") EventStatus status);
 }

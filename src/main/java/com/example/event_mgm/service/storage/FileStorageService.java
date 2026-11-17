@@ -4,6 +4,7 @@ import com.example.event_mgm.config.FileStorageConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import com.example.event_mgm.exceptions.ResourceNotFoundException;
 
 @Slf4j
 @Service
@@ -43,7 +45,9 @@ public class FileStorageService {
 
             // Save file
             Path filePath = uploadPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            try (var inputStream = file.getInputStream()) {
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
 
             log.info("Payment screenshot saved: {}", filePath.toString());
 
@@ -129,15 +133,27 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Get file URL for response
-     */
-    public String getFileUrl(String filePath) {
-        if (filePath == null) {
-            return null;
+    public byte[] readPaymentScreenshot(String filePath) {
+        Path root = Paths.get(fileStorageConfig.getUploadDir()).toAbsolutePath().normalize();
+        Path screenshotPath = Paths.get(filePath).toAbsolutePath().normalize();
+        if (!screenshotPath.startsWith(root) || !Files.isRegularFile(screenshotPath)) {
+            throw new ResourceNotFoundException("Payment screenshot not found");
         }
-        // Convert file path to URL
-        String filename = Paths.get(filePath).getFileName().toString();
-        return "/api/uploads/payments/" + filename;
+        try {
+            return Files.readAllBytes(screenshotPath);
+        } catch (IOException e) {
+            log.error("Failed to read payment screenshot", e);
+            throw new RuntimeException("Failed to read payment screenshot", e);
+        }
+    }
+
+    public MediaType getScreenshotMediaType(String filePath) {
+        String extension = getFileExtension(filePath).toLowerCase();
+        return switch (extension) {
+            case "jpg", "jpeg" -> MediaType.IMAGE_JPEG;
+            case "png" -> MediaType.IMAGE_PNG;
+            case "gif" -> MediaType.IMAGE_GIF;
+            default -> throw new IllegalArgumentException("Unsupported payment screenshot type");
+        };
     }
 }

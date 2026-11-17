@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -26,38 +27,38 @@ public class RegistrationController {
 
 
 
-    @PostMapping(value = "/solo", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/solo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Register for an event as SOLO participant")
     public ResponseEntity<ApiResponse<RegistrationResponseDto>> registerSolo(
-            @Valid @RequestBody SoloRegistrationRequestDto request) {
+            @Valid @RequestPart("request") SoloRegistrationRequestDto request,
+            @RequestPart(value = "paymentScreenshot", required = false) MultipartFile paymentScreenshot) {
 
         log.info("Solo registration request for event: {}, email: {}",
                 request.getEventId(), request.getEmail());
 
-        RegistrationResponseDto response = registrationService.registerSolo(request);
+        RegistrationResponseDto response = registrationService.registerSolo(request, paymentScreenshot);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Solo registration successful", response));
     }
 
     // ============================================================
-    // GROUP REGISTRATION (JSON)
+    // GROUP REGISTRATION
     // ============================================================
 
-    @PostMapping(value = "/group", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Register for an event as GROUP")
-    public ResponseEntity<ApiResponse<RegistrationResponseDto>> registerGroup(
-            @Valid @RequestBody GroupRegistrationRequestDto request) {
+        @PostMapping(value = "/group", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        @Operation(summary = "Register for an event as GROUP")
+        public ResponseEntity<ApiResponse<RegistrationResponseDto>> registerGroup(
+                @Valid @RequestPart("request") GroupRegistrationRequestDto request,
+                @RequestPart(value = "paymentScreenshot", required = false) MultipartFile paymentScreenshot) {
+    
+            log.info("Group registration request for event: {}, leader: {}",
+                    request.getEventId(), request.getLeader().getEmail());
+    
+            RegistrationResponseDto response = registrationService.registerGroup(request, paymentScreenshot);
+    
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Group registration successful", response));
+        }
 
-        log.info("Group registration request for event: {}, leader: {}",
-                request.getEventId(), request.getLeader().getEmail());
-
-        RegistrationResponseDto response = registrationService.registerGroup(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Group registration successful", response));
     }
-
-
-
-}

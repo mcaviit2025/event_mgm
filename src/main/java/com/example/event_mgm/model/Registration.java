@@ -5,9 +5,8 @@ import com.example.event_mgm.enums.RegistrationStatus;
 import com.example.event_mgm.enums.RegistrationType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Past;
 import lombok.*;
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +40,6 @@ public class Registration extends BaseEntity {
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
 
-    @Column(name = "date_of_birth", nullable = false)
-    @Past
-    private LocalDate dateOfBirth;
-
     @Column(name = "college_name", nullable = false, length = 100)
     private String collegeName;
 
@@ -53,9 +48,11 @@ public class Registration extends BaseEntity {
 
     // ===== PAYMENT DETAILS =====
 
-    @Column(name = "utr_no", nullable = false, length = 50)
-    private String utrNo;
+    @Column(name = "payment_proof_path", length = 500)
+    private String paymentProofPath;
 
+    @Column(name = "amount_due", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amountDue;
 
     @Column(name = "number_of_members", nullable = false)
     @Builder.Default

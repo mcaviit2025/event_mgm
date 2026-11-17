@@ -2,9 +2,7 @@ package com.example.event_mgm.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Past;
 import lombok.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,10 +31,6 @@ public class TeamMember extends BaseEntity {
 
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
-
-    @Column(name = "date_of_birth", nullable = false)
-    @Past
-    private LocalDate dateOfBirth;
 
     @Column(name = "added_at", nullable = false, updatable = false)
     private LocalDateTime addedAt;

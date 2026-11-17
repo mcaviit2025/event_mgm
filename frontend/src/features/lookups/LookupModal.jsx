@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Alert } from "../../shared/components/Alert.jsx";
 import { formatError } from "../../utils/eventFormatters.js";
 
-export function LookupModal({ kind, onClose, onSave, onCreated }) {
+export function LookupModal({ kind, item, onClose, onSave, onCreated }) {
   const label = kind === "category" ? "category" : "event type";
-  const [form, setForm] = useState({ name: "", description: "" });
+  const [form, setForm] = useState({
+    name: item?.name || "",
+    description: item?.description || "",
+  });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -27,7 +30,11 @@ export function LookupModal({ kind, onClose, onSave, onCreated }) {
     <div className="modal-backdrop lookup-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="modal-card lookup-modal" role="dialog" aria-modal="true" aria-labelledby="lookup-title">
         <header className="modal-header">
-          <div><div className="eyebrow">CLASSIFICATION</div><h2 id="lookup-title">Add {label}</h2><p>Create a new option for your event.</p></div>
+          <div>
+            <div className="eyebrow">CLASSIFICATION</div>
+            <h2 id="lookup-title">{item ? `Edit ${label}` : `Add ${label}`}</h2>
+            <p>{item ? "Update the name or description." : "Create a new option for your event."}</p>
+          </div>
           <button className="close-button" type="button" onClick={onClose} aria-label="Close">×</button>
         </header>
         {error && <div className="modal-error"><Alert>{error}</Alert></div>}
@@ -52,7 +59,7 @@ export function LookupModal({ kind, onClose, onSave, onCreated }) {
           <footer className="modal-footer">
             <button type="button" className="button button-secondary" onClick={onClose}>Cancel</button>
             <button type="submit" className="button button-primary" disabled={submitting}>
-              {submitting ? "Adding…" : `Add ${label}`}
+              {submitting ? "Saving…" : item ? `Save ${label}` : `Add ${label}`}
             </button>
           </footer>
         </form>

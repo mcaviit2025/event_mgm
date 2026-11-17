@@ -1,7 +1,12 @@
 import { Brand } from "../components/Brand.jsx";
 
-export function AdminLayout({ user, onSignOut, onOpenLookup, onRefresh, loading, headerAction, children }) {
+export function AdminLayout({ user, onSignOut, onRefresh, loading, headerAction, activeSection, onNavigate, children }) {
   const displayName = user?.fullName || user?.username || "Administrator";
+  const sectionTitle = {
+    events: "Events",
+    categories: "Categories",
+    "event-types": "Event types",
+  }[activeSection] || "Events";
 
   return (
     <div className="app-shell">
@@ -9,13 +14,13 @@ export function AdminLayout({ user, onSignOut, onOpenLookup, onRefresh, loading,
         <Brand />
         <div className="workspace-label">WORKSPACE</div>
         <nav className="side-nav" aria-label="Main navigation">
-          <a className="nav-item active" href="#events">
+          <button className={`nav-item ${activeSection === "events" ? "active" : ""}`} type="button" onClick={() => onNavigate("events")}>
             <span className="nav-symbol" aria-hidden="true">▦</span> Events
-          </a>
-          <button className="nav-item" type="button" onClick={() => onOpenLookup("event-type")}>
+          </button>
+          <button className={`nav-item ${activeSection === "event-types" ? "active" : ""}`} type="button" onClick={() => onNavigate("event-types")}>
             <span className="nav-symbol" aria-hidden="true">◇</span> Event types
           </button>
-          <button className="nav-item" type="button" onClick={() => onOpenLookup("category")}>
+          <button className={`nav-item ${activeSection === "categories" ? "active" : ""}`} type="button" onClick={() => onNavigate("categories")}>
             <span className="nav-symbol" aria-hidden="true">⌘</span> Categories
           </button>
         </nav>
@@ -43,7 +48,7 @@ export function AdminLayout({ user, onSignOut, onOpenLookup, onRefresh, loading,
       <main className="main-content" id="events">
         <header className="topbar">
           <div className="breadcrumb">
-            <span>Workspace</span><span className="crumb-separator">/</span><strong>Events</strong>
+            <span>Workspace</span><span className="crumb-separator">/</span><strong>{sectionTitle}</strong>
           </div>
           <div className="topbar-actions">
             <span className="today-label">
@@ -52,8 +57,8 @@ export function AdminLayout({ user, onSignOut, onOpenLookup, onRefresh, loading,
             <button
               className="icon-button"
               type="button"
-              title="Refresh events"
-              aria-label="Refresh events"
+              title={`Refresh ${sectionTitle.toLowerCase()}`}
+              aria-label={`Refresh ${sectionTitle.toLowerCase()}`}
               onClick={onRefresh}
               disabled={loading}
             >

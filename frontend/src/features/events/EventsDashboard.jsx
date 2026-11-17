@@ -5,6 +5,7 @@ import { Alert } from "../../shared/components/Alert.jsx";
 import { StatCard } from "../../shared/components/StatCard.jsx";
 import { AdminLayout } from "../../shared/layout/AdminLayout.jsx";
 import { LookupModal } from "../lookups/LookupModal.jsx";
+import { LookupManagementPage } from "../lookups/LookupManagementPage.jsx";
 import { EventFormModal } from "./components/EventFormModal.jsx";
 import { EventsTable } from "./components/EventsTable.jsx";
 
@@ -18,6 +19,7 @@ export function EventsDashboard({ token, user, onSignOut }) {
   const [query, setQuery] = useState("");
   const [eventModal, setEventModal] = useState(null);
   const [lookupModal, setLookupModal] = useState(null);
+  const [activeSection, setActiveSection] = useState("events");
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -36,13 +38,13 @@ export function EventsDashboard({ token, user, onSignOut }) {
     }
 
     if (categoriesResult.status === "fulfilled") {
-      setCategories(normalizeOptions(categoriesResult.value));
+      setCategories(Array.isArray(categoriesResult.value) ? categoriesResult.value : []);
     } else {
       errors.push(`Categories: ${formatError(categoriesResult.reason)}`);
     }
 
     if (typesResult.status === "fulfilled") {
-      setEventTypes(normalizeOptions(typesResult.value));
+      setEventTypes(Array.isArray(typesResult.value) ? typesResult.value : []);
     } else {
       errors.push(`Event types: ${formatError(typesResult.reason)}`);
     }
@@ -64,6 +66,8 @@ export function EventsDashboard({ token, user, onSignOut }) {
         .some((value) => value.toLowerCase().includes(normalizedQuery)),
     );
   }, [events, query]);
+  const activeCategories = useMemo(() => normalizeOptions(categories), [categories]);
+  const activeEventTypes = useMemo(() => normalizeOptions(eventTypes), [eventTypes]);
 
   async function saveEvent(form) {
     const { id, ...values } = form;
@@ -92,17 +96,24 @@ export function EventsDashboard({ token, user, onSignOut }) {
     const endpoint = lookupModal.kind === "category"
       ? "/v1/admin/categories"
       : "/v1/admin/event-types";
-    const createdOption = await apiRequest(endpoint, { token, method: "POST", body: form });
-    if (!createdOption?.id) {
+    const editing = Boolean(lookupModal.item?.id);
+    const result = await apiRequest(
+      editing ? `${endpoint}/${lookupModal.item.id}` : endpoint,
+      { token, method: editing ? "PUT" : "POST", body: form },
+    );
+    if (!editing && !result?.id) {
       throw new Error("The API did not return the ID of the new option.");
     }
-    setNotice(lookupModal.kind === "category" ? "Category added." : "Event type added.");
+    setNotice(`${lookupModal.kind === "category" ? "Category" : "Event type"} ${editing ? "updated" : "added"}.`);
     await loadDashboard();
-    return createdOption;
+    return result;
   }
 
   async function deleteEvent(event) {
-    if (!window.confirm(`Delete “${event.eventName}”? This cannot be undone.`)) return;
+    const confirmed = window.confirm(
+      `Delete "${event.eventName}" and all associated participant registrations, teammates, and payment proofs?\n\nThis permanently removes the event data and cannot be undone.`,
+    );
+    if (!confirmed) return;
     try {
       await apiRequest(`/v1/admin/events/${event.id}`, { token, method: "DELETE" });
       setNotice("Event deleted.");
@@ -122,16 +133,19 @@ export function EventsDashboard({ token, user, onSignOut }) {
       <AdminLayout
         user={user}
         onSignOut={onSignOut}
-        onOpenLookup={(kind) => setLookupModal({ kind })}
         onRefresh={loadDashboard}
         loading={loading}
-        headerAction={
+        activeSection={activeSection}
+        onNavigate={setActiveSection}
+        headerAction={activeSection === "events" ? (
           <button className="button button-primary button-small" type="button" onClick={() => setEventModal({})}>
             <span aria-hidden="true">＋</span> Create event
           </button>
-        }
+        ) : null}
       >
-        <section className="page-heading">
+        {pageError && <Alert onDismiss={() => setPageError("")}>{pageError}</Alert>}
+        {notice && <Alert variant="success" onDismiss={() => setNotice("")}>{notice}</Alert>}
+        {activeSection === "events" ? <><section className="page-heading">
           <div>
             <div className="eyebrow">EVENT MANAGEMENT</div>
             <h1>Your events</h1>
@@ -142,14 +156,11 @@ export function EventsDashboard({ token, user, onSignOut }) {
           </button>
         </section>
 
-        {pageError && <Alert onDismiss={() => setPageError("")}>{pageError}</Alert>}
-        {notice && <Alert variant="success" onDismiss={() => setNotice("")}>{notice}</Alert>}
-
         <section className="stats-grid" aria-label="Event statistics">
           <StatCard label="Active events" value={events.length} icon="◷" tone="violet" detail="Available in your workspace" />
           <StatCard label="Total registrations" value={registrationCount} icon="♙" tone="blue" detail="Across all events" />
-          <StatCard label="Categories" value={categories.length} icon="⌘" tone="orange" detail="Available to assign" />
-          <StatCard label="Event types" value={eventTypes.length} icon="◇" tone="green" detail="Available to assign" />
+          <StatCard label="Categories" value={activeCategories.length} icon="⌘" tone="orange" detail="Available to assign" />
+          <StatCard label="Event types" value={activeEventTypes.length} icon="◇" tone="green" detail="Available to assign" />
         </section>
 
         <EventsTable
@@ -166,13 +177,25 @@ export function EventsDashboard({ token, user, onSignOut }) {
           <span>Gather Event Management</span>
           <span>Built for better gatherings <span className="footer-heart">♥</span></span>
         </footer>
+        </> : activeSection === "categories" || activeSection === "event-types" ? (
+          <LookupManagementPage
+            token={token}
+            kind={activeSection === "categories" ? "category" : "event-type"}
+            items={activeSection === "categories" ? categories : eventTypes}
+            loading={loading}
+            onRefresh={loadDashboard}
+            onNotice={setNotice}
+            onEdit={(item, kind) => setLookupModal({ kind, item })}
+            onAdd={(kind) => setLookupModal({ kind })}
+          />
+        ) : null}
       </AdminLayout>
 
       {eventModal && (
         <EventFormModal
           event={eventModal.id ? eventModal : null}
-          categories={categories}
-          eventTypes={eventTypes}
+          categories={activeCategories}
+          eventTypes={activeEventTypes}
           onClose={() => setEventModal(null)}
           onSave={saveEvent}
           onCreateLookup={(kind, onCreated) => setLookupModal({ kind, onCreated })}
@@ -181,6 +204,7 @@ export function EventsDashboard({ token, user, onSignOut }) {
       {lookupModal && (
         <LookupModal
           kind={lookupModal.kind}
+          item={lookupModal.item}
           onClose={() => setLookupModal(null)}
           onSave={saveLookup}
           onCreated={lookupModal.onCreated}

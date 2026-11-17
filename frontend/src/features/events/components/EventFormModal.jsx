@@ -4,10 +4,10 @@ import { formatAmount, formatError, toLocalDateTimeInput } from "../../../utils/
 
 function createEmptyForm() {
   const start = new Date();
-  start.setDate(start.getDate() + 1);
+  start.setDate(start.getDate() + 3);
   start.setHours(18, 0, 0, 0);
   const deadline = new Date(start);
-  deadline.setHours(deadline.getHours() - 3);
+  deadline.setDate(deadline.getDate() - 1);
 
   return {
     eventName: "",
@@ -54,8 +54,10 @@ export function EventFormModal({
   const [validationErrors, setValidationErrors] = useState({});
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [deadlineEdited, setDeadlineEdited] = useState(false);
 
   function update(name, value) {
+    if (name === "registrationDeadline") setDeadlineEdited(true);
     setForm((current) => {
       const next = { ...current, [name]: value };
       if (name === "registrationMode") {
@@ -67,6 +69,30 @@ export function EventFormModal({
       return next;
     });
     setValidationErrors((current) => ({ ...current, [name]: undefined }));
+  }
+
+  function updateSchedulePart(name, value) {
+    const nowInput = toLocalDateTimeInput(new Date());
+    const currentDate = form.eventDateTime.slice(0, 10);
+    const currentTime = form.eventDateTime.slice(11, 16);
+    const date = name === "eventDate" ? value : currentDate;
+    let time = name === "eventTime" ? value : currentTime;
+    if (date === nowInput.slice(0, 10) && time && time < nowInput.slice(11, 16)) {
+      time = nowInput.slice(11, 16);
+    }
+    const eventDateTime = date && time ? `${date}T${time}` : "";
+    setForm((current) => ({
+      ...current,
+      eventDateTime,
+      registrationDeadline: eventDateTime && !deadlineEdited
+        ? oneDayBefore(eventDateTime)
+        : current.registrationDeadline,
+    }));
+    setValidationErrors((current) => ({
+      ...current,
+      eventDateTime: undefined,
+      registrationDeadline: deadlineEdited ? current.registrationDeadline : undefined,
+    }));
   }
 
   async function submit(submitEvent) {
@@ -90,7 +116,9 @@ export function EventFormModal({
 
   const fieldError = (name) =>
     validationErrors[name] && <small className="field-error">{validationErrors[name]}</small>;
-  const dateMinimum = toLocalDateTimeInput(new Date());
+  const nowInput = toLocalDateTimeInput(new Date());
+  const eventDate = form.eventDateTime.slice(0, 10);
+  const eventTime = form.eventDateTime.slice(11, 16);
   const groupOnly = form.registrationMode === "GROUP_ONLY";
 
   return (
@@ -144,18 +172,24 @@ export function EventFormModal({
           </div>
 
           <div className="form-section-title"><span>02</span> Schedule</div>
-          <div className="form-grid">
+          <div className="form-grid event-schedule-grid">
             <label>
-              Event date &amp; time
-              <input required type="datetime-local" min={dateMinimum} value={form.eventDateTime} onChange={(event) => update("eventDateTime", event.target.value)} />
+              Event date
+              <input required type="date" min={nowInput.slice(0, 10)} value={eventDate} onChange={(event) => updateSchedulePart("eventDate", event.target.value)} />
+              <small className="field-hint">Choose the day the event takes place.</small>
               {fieldError("eventDateTime")}
             </label>
             <label>
+              Event time
+              <input required type="time" min={eventDate === nowInput.slice(0, 10) ? nowInput.slice(11, 16) : undefined} value={eventTime} onChange={(event) => updateSchedulePart("eventTime", event.target.value)} />
+            </label>
+            <label className="event-deadline-field">
               Registration deadline
-              <input required type="datetime-local" min={dateMinimum} value={form.registrationDeadline} onChange={(event) => update("registrationDeadline", event.target.value)} />
+              <input required type="datetime-local" min={nowInput} value={form.registrationDeadline} onChange={(event) => update("registrationDeadline", event.target.value)} />
+              <small className="field-hint">Defaults to one day before the event. You can change the date and time.</small>
               {fieldError("registrationDeadline")}
             </label>
-            <p className="form-note field-wide">Registration must close at least 2 hours before the event begins.</p>
+            <p className="form-note field-wide">The deadline must be at least 2 hours before the event begins.</p>
           </div>
 
           <div className="form-section-title"><span>03</span> Registration &amp; classification</div>
@@ -218,4 +252,17 @@ export function EventFormModal({
       </section>
     </div>
   );
+}
+
+function oneDayBefore(value) {
+  const [datePart, timePart] = value.split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+  const previousDate = new Date(year, month - 1, day);
+  previousDate.setDate(previousDate.getDate() - 1);
+  const previousDatePart = [
+    previousDate.getFullYear(),
+    String(previousDate.getMonth() + 1).padStart(2, "0"),
+    String(previousDate.getDate()).padStart(2, "0"),
+  ].join("-");
+  return `${previousDatePart}T${timePart}`;
 }

@@ -15,14 +15,18 @@ import com.example.event_mgm.exceptions.ResourceNotFoundException;
 import com.example.event_mgm.model.Category;
 import com.example.event_mgm.model.Event;
 import com.example.event_mgm.model.EventType;
+import com.example.event_mgm.model.Registration;
 import com.example.event_mgm.model.User;
 
 import com.example.event_mgm.service.event.EventService;
+import com.example.event_mgm.service.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,6 +43,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final FileStorageService fileStorageService;
 
 
 
@@ -218,13 +223,33 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with ID: " + id));
 
-        // Check if event has registrations
-        if (event.getRegistrations() != null && !event.getRegistrations().isEmpty()) {
-            throw new InvalidData("Cannot delete event with existing registrations");
-        }
+        List<String> paymentProofPaths = event.getRegistrations() == null
+                ? List.of()
+                : event.getRegistrations().stream()
+                .map(Registration::getPaymentProofPath)
+                .filter(path -> path != null && !path.isBlank())
+                .toList();
 
         eventRepository.delete(event);
+        deletePaymentProofsAfterCommit(paymentProofPaths);
         log.info("Event deleted successfully with ID: {}", id);
+    }
+
+    private void deletePaymentProofsAfterCommit(List<String> proofPaths) {
+        if (proofPaths.isEmpty()) {
+            return;
+        }
+        Runnable deleteFiles = () -> proofPaths.forEach(fileStorageService::deleteFile);
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    deleteFiles.run();
+                }
+            });
+        } else {
+            deleteFiles.run();
+        }
     }
 
     // ============================================================

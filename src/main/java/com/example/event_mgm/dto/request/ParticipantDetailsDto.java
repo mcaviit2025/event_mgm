@@ -2,7 +2,6 @@ package com.example.event_mgm.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -34,10 +33,6 @@ public class ParticipantDetailsDto {
     @NotBlank(message = "Phone number is required")
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be 10-15 digits")
     private String phoneNumber;
-
-    @NotNull(message = "Date of birth is required")
-    @Past(message = "Date of birth must be in the past")
-    private LocalDate dateOfBirth;
 
     @NotBlank(message = "College name is required")
     @Size(min = 3, max = 100, message = "College name must be between 3 and 100 characters")

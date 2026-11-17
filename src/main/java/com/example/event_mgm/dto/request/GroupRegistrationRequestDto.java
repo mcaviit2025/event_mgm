@@ -1,6 +1,5 @@
 package com.example.event_mgm.dto.request;
 
-import com.example.event_mgm.enums.RegistrationType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -23,10 +22,6 @@ public class GroupRegistrationRequestDto {
     @Valid
     @NotEmpty(message = "At least one team member is required")
     private List<ParticipantDetailsDto> teamMembers;
-
-    @NotBlank(message = "UTR number is required")
-    @Pattern(regexp = "^[A-Z0-9]{10,20}$", message = "UTR number should be 10-20 alphanumeric characters")
-    private String utrNo;
 
     // Custom validation for group size
     @AssertTrue(message = "Group must have at least 2 members (leader + 1 team member)")

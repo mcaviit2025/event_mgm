@@ -92,7 +92,7 @@ public class EventController {
 
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete an event")
+    @Operation(summary = "Delete an event and all associated registrations and participants")
     public ResponseEntity<ApiResponse<Void>> deleteEvent(
             @PathVariable Long id) {
 
